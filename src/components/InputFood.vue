@@ -1,8 +1,13 @@
 <template>
   <div class="autocomplete-container">
     <form @submit.prevent="addFood" class="input-wrapper">
-      <input type="text" v-model="inputValue" @input="filterfoods" placeholder="Введите текст..."
-        class="autocomplete-input" />
+      <input
+        v-model="inputValue"
+        @input="filterfoods"
+        placeholder="Введите текст..."
+        class="autocomplete-input"
+        type="text"
+      />
       <button class="input-button">+</button>
     </form>
     <ul v-if="filteredFoods.length > 0 && inputValue.length > 0" class="suggestions-list">
