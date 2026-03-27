@@ -42,20 +42,4 @@ const router = createRouter({
   routes
 });
 
-
-// router.beforeEach((to, from, next) => {
-//   const authStore = useAuthStore();
-//   console.log(to.meta.requiresAuth, authStore.isLoggedIn)
-//   if (to.meta.requiresAuth && !authStore.isLoggedIn) {
-//     console.log(1)
-//     next('/auth');
-//   } else if((!to.meta.requiresAuth && authStore.isLoggedIn)) {
-//     console.log(2)
-//     next('/calendar');
-//   } else {
-//     console.log(3)
-//     next();
-//   }
-// });
-
 export default router

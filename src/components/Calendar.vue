@@ -36,14 +36,12 @@ import CalendarAdd from './CalendarAdd.vue';
 import CalendarItem from '@/components/CalendarItem.vue';
 import ArrowLeft from '@/components/icons/ArrowLeft.vue';
 import ArrowRight from '@/components/icons/ArrowRight.vue';
-
 import { useNotificationsStore } from '@/stores/useNotificationsStore';
 import { fetchFood, fetchCalendar, addFoodToCalendar, deleteFoodFromCalendar } from '@/api/api'
 
 import { type calendarElement } from '@/types/index';
 
 const notificationsStore = useNotificationsStore();
-
 const router = useRouter()
 const route = useRoute()
 

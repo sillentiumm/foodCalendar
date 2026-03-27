@@ -4,7 +4,6 @@
       <Notification v-for="notification in notificationsStore.notifications" :title="notification">
       </Notification>
     </transition-group>
-
   </div>
 </template>
 

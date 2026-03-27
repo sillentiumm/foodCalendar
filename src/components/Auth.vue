@@ -19,19 +19,16 @@
 
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref } from 'vue';
 import supabase from '../supabase';
 
 import { useNotificationsStore } from '@/stores/useNotificationsStore';
 import { useRouter } from 'vue-router'
 
 const notificationsStore = useNotificationsStore();
-
 const router = useRouter()
-
 const email = ref('');
 const password = ref('');
-// const authStatus = ref('SIGNED_OUT')
 
 const signUp = async () => {
   const { data, error } = await supabase.auth.signUp({
@@ -51,11 +48,6 @@ const signIn = async () => {
   if (error) notificationsStore.addNotification(error.message)
   else router.push('/')
 };
-
-const signOut = () => {
-  supabase.auth.signOut()
-  console.log('out')
-}
 
 </script>
 

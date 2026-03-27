@@ -53,15 +53,14 @@
   </div>
 </template>
 
-<script setup lang="ts" >
+<script setup lang="ts">
 
 import { useRoute, useRouter } from 'vue-router'
 import { ref, reactive, onMounted } from 'vue';
-
 import { fetchFood, updateFoodInFoodlist, deleteFoodFromFoodlist } from '@/api/api'
-import { type food } from '@/types/index';
-
 import { useNotificationsStore } from '@/stores/useNotificationsStore';
+
+import { type food } from '@/types/index';
 
 const notificationsStore = useNotificationsStore();
 
@@ -74,7 +73,6 @@ const newIngridient = ref<string>('')
 const textarea = ref<HTMLTextAreaElement | null>(null);
 const foodError = ref<string>('')
 const foodTitle = ref<string>('');
-
 
 const addNewIngrediens = () => {
   if (!newIngridient.value) return
