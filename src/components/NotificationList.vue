@@ -1,10 +1,10 @@
 <template>
   <div class="notifications">
-    <Notification
-      v-for="notification in notificationsStore.notifications"
-      :title="notification"
-    >
-    </Notification>
+    <transition-group name="notification">
+      <Notification v-for="notification in notificationsStore.notifications" :title="notification">
+      </Notification>
+    </transition-group>
+
   </div>
 </template>
 
@@ -22,5 +22,17 @@ const notificationsStore = useNotificationsStore();
   top: 8px;
   right: 8px;
   width: 180px;
+  transition: all 1s ease;
+}
+
+.notification-enter-active,
+.notification-leave-active {
+  transition: all 0.5s ease;
+}
+
+.notification-enter-from,
+.notification-leave-to {
+  opacity: 0;
+  transform: translateX(180px);
 }
 </style>

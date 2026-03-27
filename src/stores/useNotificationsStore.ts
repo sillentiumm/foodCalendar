@@ -1,18 +1,19 @@
 import { defineStore } from 'pinia';
 
+interface NotificationsState {
+  notifications: string[];
+}
+
 export const useNotificationsStore = defineStore('notifications', {
-  state: () => ({
-    notifications: []
+  state: (): NotificationsState => ({
+    notifications: [],
   }),
   actions: {
-    // Метод для добавления элемента в массив
-    addItem(name) {
+    addNotification(name:string) {
       this.notifications.push(name);
       setTimeout(() => {
-        if (this.notifications.length > 0) {
-          this.notifications.shift(); // удаляем первый элемент
-        }
-      }, 5000);
+        if (this.notifications.length > 0) this.notifications.shift();
+      }, 3000);
     },
   },
 });

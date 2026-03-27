@@ -19,10 +19,13 @@ const props = defineProps({
 
 .notification {
   width: 100%;
-  background-color: #ccc;
+  background-color: #fff;
+  border: 1px solid #ccc;
   border-radius: 8px;
   margin-bottom: 4px;
-  padding: 8px;
+  padding: 10px;
+  transition: all 1s ease;
 }
+
 
 </style>

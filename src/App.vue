@@ -1,18 +1,26 @@
 <template>
-  <Main></Main>
+   <div class="container">
+    <router-view />
+    <NotificationList></NotificationList>
+   </div>
 </template>
-
-<style>
-*{
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-</style>
-
 
 <script setup>
 
-import Main from './components/Main.vue';
+import supabase from './supabase';
+import { ref, onMounted } from 'vue';
+import { useRouter } from 'vue-router'
+
+import NotificationList from './components/NotificationList.vue';
+
+const router = useRouter()
+const isLoggedIn = ref(false)
+
+onMounted(() => {
+  supabase.auth.onAuthStateChange((event, session) => {
+    isLoggedIn.value = session?.access_token? true: false
+    if(!isLoggedIn.value) router.push('/auth')
+  });
+});
 
 </script>

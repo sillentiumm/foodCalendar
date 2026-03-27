@@ -2,48 +2,58 @@
   <div class="calendar">
     <div class="calendar-title">
       <ArrowLeft></ArrowLeft>
-        <input
-          class="input_hide"
-          ref="dateInput"
-          v-model="formattedDate"
-          type="date"
-          @input="fetchCalendar"
-        >
-        <div @click="openDatePicker">
-           {{ formattedDate }}
-        </div>
+      <input class="input_hide" ref="dateInput" v-model="formattedDate" type="date" @input="downloadCalendar">
+      <div @click="openDatePicker">
+        {{ formattedDate }}
+      </div>
       <ArrowRight></ArrowRight>
     </div>
-    <div v-for="item in calendarList">
-      <CalendarItem
-        :item="item"
-        @deleteItem="deleteFromCalendar"
-      >
+    <div v-for="food in calendarList">
+      <CalendarItem :food="food" @deleteFood="deleteFromCalendar">
       </CalendarItem>
     </div>
-    <InputFood
-      @addToCalendar="addToCalendar"
-    >
-    </InputFood>
+    <div v-if="globalCalories" class="input-wraper">
+      <div class="input-full" style="margin: 8px;">
+        <span>
+          Итого: {{ globalCalories }} кл.
+        </span>
+        <span v-if="globalCalories > 2000">
+          Обнаружен форс-зажор
+        </span>
+      </div>
+    </div>
+    <CalendarAdd @addToCalendar="addToCalendar">
+    </CalendarAdd>
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 
-import { ref, onMounted, reactive } from 'vue';
-import supabase from '../supabase';
+import { ref, onMounted, reactive, computed } from 'vue';
+import { useRoute, useRouter } from 'vue-router'
 
-import InputFood from '@/components/inputFood.vue';
+import CalendarAdd from './CalendarAdd.vue';
 import CalendarItem from '@/components/CalendarItem.vue';
 import ArrowLeft from '@/components/icons/ArrowLeft.vue';
 import ArrowRight from '@/components/icons/ArrowRight.vue';
 
 import { useNotificationsStore } from '@/stores/useNotificationsStore';
+import { fetchFood, fetchCalendar, addFoodToCalendar, deleteFoodFromCalendar } from '@/api/api'
+
+import { type calendarElement } from '@/types/index';
+
 const notificationsStore = useNotificationsStore();
 
-const formattedDate = ref('')
-const calendarList = reactive([])
-const dateInput = ref(null);
+const router = useRouter()
+const route = useRoute()
+
+const formattedDate = ref<string>('')
+const calendarList = reactive<calendarElement[]>([])
+const dateInput = ref<HTMLInputElement | null>(null);
+
+const globalCalories = computed(() => {
+  return calendarList.reduce((sum, food) => sum + food.calories * food.foodWeight / 100, 0);
+});
 
 const calendarToday = () => {
   const currentDate = new Date()
@@ -53,51 +63,53 @@ const calendarToday = () => {
   formattedDate.value = `${year}-${month}-${day}`;
 }
 
-const fetchCalendar = async () => {
+const downloadCalendar = async () => {
+  router.push({
+    name: 'calendar',
+    query: {
+      date: formattedDate.value
+    }
+  });
   calendarList.splice(0)
-  const { data, error } = await supabase
-    .from('calendar')
-    .select()
-    .eq('date', formattedDate.value);
+  const { data, error } = await fetchCalendar(formattedDate.value)
   if (error) {
     console.error('Ошибка при получении данных:', error.message);
   } else {
     calendarList.push(...data)
-  }
-}
-
-const addToCalendar = async (title) => {
-  const { data, error } = await supabase
-    .from('calendar')
-    .insert([{ title: title, index: 1, date: formattedDate.value }]);
-  if (error) notificationsStore.addItem(error.message);
-  else notificationsStore.addItem('Еда успешно добавлена!');
-  fetchCalendar()
-}
-
-const deleteFromCalendar = async (id) => {
-  console.log(id)
-  try {
-    const { error } = await supabase
-      .from('calendar')
-      .delete()
-      .eq('id', id);
-    if (error) {
-      throw error;
+    for (let i = 0; i < calendarList.length; i++) {
+      const { data, error } = await fetchFood(calendarList[i]!.title)
+      if (error) notificationsStore.addNotification(error.message)
+      calendarList[i]!.calories = data[0]?.calories || 0
     }
-    fetchCalendar()
-  } catch (error) {
-    console.error('Ошибка при удалении поста:', error.message);
   }
+}
+
+const addToCalendar = async (title: string, weight: number) => {
+  if (!title || !formattedDate.value) return
+  const calendarData = {
+    title: title,
+    date: formattedDate.value,
+    foodWeight: weight
+  }
+  const data = await addFoodToCalendar(calendarData)
+  if (data.error) notificationsStore.addNotification(data.error.message)
+  else downloadCalendar()
+}
+
+const deleteFromCalendar = async (id: number) => {
+  const data = await deleteFoodFromCalendar(id)
+  if (data.error) notificationsStore.addNotification(data.error.message)
+  else downloadCalendar()
 }
 
 const openDatePicker = () => {
-  dateInput.value.showPicker();
+  if (dateInput.value) dateInput.value.showPicker();
 };
 
 onMounted(() => {
-  calendarToday()
-  fetchCalendar()
+  if (route.query.date) formattedDate.value = route.query.date as string
+  else calendarToday()
+  downloadCalendar()
 });
 
 </script>
@@ -107,6 +119,7 @@ onMounted(() => {
   height: 400px;
   margin-top: 16px;
 }
+
 .calendar-title {
   display: flex;
   align-items: center;
@@ -115,14 +128,15 @@ onMounted(() => {
   font-size: 16px;
   font-weight: 600;
 }
+
 .calendar-title * {
   cursor: pointer;
 }
+
 .input_hide {
   opacity: 0;
   position: absolute;
   top: 8px;
   left: 100px;
 }
-
 </style>

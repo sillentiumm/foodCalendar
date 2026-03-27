@@ -1,11 +1,19 @@
 <template>
-  <div class="wraper">
-    <div class="auth">
-      <input v-model="email" placeholder="Email" />
-      <input v-model="password" type="password" placeholder="Пароль" />
-      <button @click="signUp">Зарегистрироваться</button>
-      <button @click="signIn">Войти</button>
-    </div>
+  <div class="auth">
+    <h3>Войдите в аккаунт</h3>
+    <input
+      v-model="email"
+      class="input-full"
+      placeholder="Email"
+    />
+    <input
+      v-model="password"
+      class="input-full"
+      type="password"
+      placeholder="Пароль"
+    />
+    <button @click="signUp" class="input-full">Зарегистрироваться</button>
+    <button @click="signIn" class="input-full">Войти</button>
   </div>
 </template>
 
@@ -15,7 +23,11 @@ import { ref, onMounted } from 'vue';
 import supabase from '../supabase';
 
 import { useNotificationsStore } from '@/stores/useNotificationsStore';
+import { useRouter } from 'vue-router'
+
 const notificationsStore = useNotificationsStore();
+
+const router = useRouter()
 
 const email = ref('');
 const password = ref('');
@@ -26,8 +38,8 @@ const signUp = async () => {
     email: email.value,
     password: password.value,
   });
-  if (error) notificationsStore.addItem(error.message);
-  else notificationsStore.addItem('Проверьте почту для подтверждения!')
+  if (error) notificationsStore.addNotification(error.message);
+  else notificationsStore.addNotification('Проверьте почту для подтверждения!')
  
 };
 
@@ -36,7 +48,8 @@ const signIn = async () => {
     email: email.value,
     password: password.value,
   });
-  if (error) notificationsStore.addItem(error.message)
+  if (error) notificationsStore.addNotification(error.message)
+  else router.push('/')
 };
 
 const signOut = () => {
@@ -44,31 +57,24 @@ const signOut = () => {
   console.log('out')
 }
 
-// onMounted(() => {
-//   supabase.auth.onAuthStateChange((event, session) => {
-//     authStatus.value = event
-//     console.log('Состояние аутентификации:', event, session);
-//   });
-// });
-
 </script>
 
 <style scoped>
-.wraper {
-  max-width: 360px;
-}
+
 .auth {
   width: 100%;
   display: flex;
   justify-content: center;
   flex-direction: column;
+  gap: 4px;
+  padding: 8px;
 }
-input, button {
-  width: 100%;
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  font-size: 16px;
+
+h3 {
+  text-align: center;
+  margin-top: 12px;
+  margin-bottom: 12px;
 }
+
 
 </style>
